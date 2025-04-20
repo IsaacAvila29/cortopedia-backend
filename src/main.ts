@@ -6,11 +6,11 @@ async function bootstrap() {
 
   // Configura CORS para permitir solicitudes desde el frontend
   app.enableCors({
-    origin: 'http://localhost:3001', // Cambia esto al dominio de tu frontend
+    origin: 'http://localhost:3000', // Cambia esto al dominio de tu frontend
     methods: 'GET,POST,PUT,DELETE,OPTIONS',
     allowedHeaders: 'Content-Type,Authorization',
   });
 
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(3001);
 }
 void bootstrap();

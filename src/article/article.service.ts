@@ -21,4 +21,14 @@ export class ArticleService {
     this.articles.push(newArticle);
     return newArticle;
   }
+  updateArticle(id: number, article: CreateArticleDto) {
+    const { title, content } = article;
+    const articleToUpdate = this.articles.find((article) => article.id === id);
+    if (articleToUpdate) {
+      articleToUpdate.title = title;
+      articleToUpdate.content = content;
+      return articleToUpdate;
+    }
+    return null;
+  }
 }
