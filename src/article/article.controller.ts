@@ -1,4 +1,13 @@
-import { Controller, Get, Post, Body, Query, Param, Put } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Query,
+  Param,
+  Put,
+  Delete,
+} from '@nestjs/common';
 import { ArticleService } from './article.service';
 import { CreateArticleDto } from './dto/create-article.dto';
 
@@ -29,5 +38,9 @@ export class ArticleController {
     @Body() createArticleDto: CreateArticleDto,
   ) {
     return this.articleService.updateArticle(parseInt(id), createArticleDto);
+  }
+  @Delete('/:id')
+  deleteArticle(@Param('id') id: string) {
+    return this.articleService.deleteArticle(parseInt(id));
   }
 }

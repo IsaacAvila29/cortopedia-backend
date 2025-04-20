@@ -31,4 +31,12 @@ export class ArticleService {
     }
     return null;
   }
+  deleteArticle(id: number) {
+    const articleToDelete = this.articles.find((article) => article.id === id);
+    if (articleToDelete) {
+      this.articles = this.articles.filter((article) => article.id !== id);
+      return articleToDelete;
+    }
+    return null;
+  }
 }
