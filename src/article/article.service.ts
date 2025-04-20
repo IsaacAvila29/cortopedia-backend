@@ -1,42 +1,84 @@
 import { Injectable } from '@nestjs/common';
 import { CreateArticleDto } from './dto/create-article.dto';
+import { supabase } from 'src/supabase.client';
 
 @Injectable()
 export class ArticleService {
-  private articles: { id: number; title: string; content: string }[] = [];
+  // private articles: { id: number; title: string; content: string }[] = [];
 
-  getArticles() {
-    return this.articles;
-  }
-  getArticleById(id: number) {
-    return this.articles.find((article) => article.id === id);
-  }
-  createArticle(article: CreateArticleDto) {
-    const { title, content } = article;
-    const newArticle = {
-      id: this.articles.length + 1,
-      title,
-      content,
-    };
-    this.articles.push(newArticle);
-    return newArticle;
-  }
-  updateArticle(id: number, article: CreateArticleDto) {
-    const { title, content } = article;
-    const articleToUpdate = this.articles.find((article) => article.id === id);
-    if (articleToUpdate) {
-      articleToUpdate.title = title;
-      articleToUpdate.content = content;
-      return articleToUpdate;
+  async getArticles(): Promise<any[]> {
+    const { data, error } = await supabase.from('articles').select('*');
+    if (error) {
+      console.error('Error fetching articles:', error);
+      throw new Error('Error fetching articles');
     }
-    return null;
+    return data || [];
   }
-  deleteArticle(id: number) {
-    const articleToDelete = this.articles.find((article) => article.id === id);
-    if (articleToDelete) {
-      this.articles = this.articles.filter((article) => article.id !== id);
-      return articleToDelete;
+  async getArticleById(id: number): Promise<any> {
+    const { data, error } = await supabase
+      .from('articles')
+      .select('*')
+      .eq('id', id)
+      .single<{ id: number; title: string; content: string }>();
+    if (error) {
+      throw new Error('Error fetching article');
     }
-    return null;
+    return data || null;
+  }
+  async createArticle(
+    article: CreateArticleDto,
+  ): Promise<{ id: number; title: string; content: string }> {
+    const {
+      data,
+      error,
+    }: {
+      data: { id: number; title: string; content: string } | null;
+      error: any;
+    } = await supabase
+      .from('articles')
+      .insert({
+        title: article.title,
+        content: article.content,
+      })
+      .select('*')
+      .single();
+    if (error) {
+      throw new Error('Error creating article');
+    }
+    if (!data) {
+      throw new Error('No data returned after creating article');
+    }
+    return data;
+  }
+
+  async updateArticle(
+    id: number,
+    article: CreateArticleDto,
+  ): Promise<{ id: number; title: string; content: string } | null> {
+    const {
+      data,
+      error,
+    }: {
+      data: { id: number; title: string; content: string } | null;
+      error: any;
+    } = await supabase
+      .from('articles')
+      .update({
+        title: article.title,
+        content: article.content,
+      })
+      .eq('id', id)
+      .select('*')
+      .single();
+    if (error) {
+      throw new Error('Error updating article');
+    }
+    return data || null;
+  }
+
+  async deleteArticle(id: number) {
+    const { error } = await supabase.from('articles').delete().eq('id', id);
+    if (error) throw error;
+    return { success: true };
   }
 }
