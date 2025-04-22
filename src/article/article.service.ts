@@ -4,8 +4,6 @@ import { supabase } from 'src/supabase.client';
 
 @Injectable()
 export class ArticleService {
-  // private articles: { id: number; title: string; content: string }[] = [];
-
   async getArticles(): Promise<any[]> {
     const { data, error } = await supabase.from('articles').select('*');
     if (error) {
@@ -14,31 +12,47 @@ export class ArticleService {
     }
     return data || [];
   }
+
   async getArticleById(id: number): Promise<any> {
     const { data, error } = await supabase
       .from('articles')
       .select('*')
       .eq('id', id)
-      .single<{ id: number; title: string; content: string }>();
+      .single<{
+        id: number;
+        title: string;
+        content: string;
+        image_url: string;
+      }>();
     if (error) {
       throw new Error('Error fetching article');
     }
     return data || null;
   }
-  async createArticle(
-    article: CreateArticleDto,
-  ): Promise<{ id: number; title: string; content: string }> {
+
+  async createArticle(article: CreateArticleDto): Promise<{
+    id: number;
+    title: string;
+    content: string;
+    image_url: string;
+  }> {
     const {
       data,
       error,
     }: {
-      data: { id: number; title: string; content: string } | null;
+      data: {
+        id: number;
+        title: string;
+        content: string;
+        image_url: string;
+      } | null;
       error: any;
     } = await supabase
       .from('articles')
       .insert({
         title: article.title,
         content: article.content,
+        image_url: article.image_url, // Añadido el campo image_url
       })
       .select('*')
       .single();
@@ -54,18 +68,29 @@ export class ArticleService {
   async updateArticle(
     id: number,
     article: CreateArticleDto,
-  ): Promise<{ id: number; title: string; content: string } | null> {
+  ): Promise<{
+    id: number;
+    title: string;
+    content: string;
+    image_url: string;
+  } | null> {
     const {
       data,
       error,
     }: {
-      data: { id: number; title: string; content: string } | null;
+      data: {
+        id: number;
+        title: string;
+        content: string;
+        image_url: string;
+      } | null;
       error: any;
     } = await supabase
       .from('articles')
       .update({
         title: article.title,
         content: article.content,
+        image_url: article.image_url, // Añadido el campo image_url
       })
       .eq('id', id)
       .select('*')
@@ -80,5 +105,33 @@ export class ArticleService {
     const { error } = await supabase.from('articles').delete().eq('id', id);
     if (error) throw error;
     return { success: true };
+  }
+
+  async saveMetadata(url: string, articleId: string) {
+    const { error } = await supabase
+      .from('images')
+      .insert([{ url, article_id: articleId }]);
+
+    if (error) {
+      throw new Error(`Error saving metadata: ${error.message}`);
+    }
+  }
+
+  async uploadImage(fileBuffer: Buffer, fileName: string) {
+    const { error } = await supabase.storage
+      .from('images')
+      .upload(fileName, fileBuffer, {
+        cacheControl: '3600',
+        upsert: false,
+      });
+
+    if (error) {
+      throw new Error(`Error uploading image: ${error.message}`);
+    }
+
+    const { data: urlData } = supabase.storage
+      .from('images')
+      .getPublicUrl(fileName);
+    return urlData.publicUrl;
   }
 }

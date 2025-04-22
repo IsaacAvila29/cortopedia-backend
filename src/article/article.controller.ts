@@ -1,3 +1,4 @@
+/* eslint-disable */
 import {
   Controller,
   Get,
@@ -7,9 +8,12 @@ import {
   Param,
   Put,
   Delete,
+  UseInterceptors,
+  UploadedFile,
 } from '@nestjs/common';
 import { ArticleService } from './article.service';
 import { CreateArticleDto } from './dto/create-article.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('/article')
 export class ArticleController {
@@ -42,5 +46,32 @@ export class ArticleController {
   @Delete('/:id')
   deleteArticle(@Param('id') id: string) {
     return this.articleService.deleteArticle(parseInt(id));
+  }
+
+  @Post('upload')
+  @UseInterceptors(FileInterceptor('file'))
+  async uploadImage(
+    @UploadedFile() file: Express.Multer.File,
+    @Body('articleId') articleId: string,
+  ) {
+    if (
+      !file ||
+      !(file instanceof Object) ||
+      !file.buffer ||
+      !file.originalname ||
+      !file.mimetype
+    ) {
+      throw new Error('Invalid file upload');
+    }
+
+    const buffer = Buffer.from(file.buffer);
+    const url = await this.articleService.uploadImage?.(
+      buffer,
+      file.originalname,
+    );
+
+    await this.articleService.saveMetadata?.(url, articleId);
+
+    return { url };
   }
 }
