@@ -3,4 +3,5 @@ export interface CreateArticleDto {
   content: string;
   created_at: Date;
   image_url?: string;
+  image_description?: string;
 }
