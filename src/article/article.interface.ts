@@ -4,4 +4,5 @@ export interface Article {
   content: string;
   image_url: string;
   image_description: string;
+  bibliography: string;
 }
