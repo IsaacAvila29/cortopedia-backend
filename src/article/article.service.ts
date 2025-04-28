@@ -34,7 +34,6 @@ export class ArticleService {
         content: article.content,
         image_url: article.image_url,
         image_description: article.image_description,
-        bibliography: article.bibliography,
       })
       .select('*')
       .single<Article>();
@@ -58,7 +57,6 @@ export class ArticleService {
         content: article.content,
         image_url: article.image_url,
         image_description: article.image_description,
-        bibliography: article.bibliography,
       })
       .eq('id', id)
       .select('*')

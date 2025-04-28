@@ -1,5 +1,5 @@
 export class CreateBibliographyDto {
-  id: number;
+  article_id: number;
   author?: string;
   year?: string;
   title?: string;

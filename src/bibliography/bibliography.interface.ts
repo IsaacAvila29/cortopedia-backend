@@ -1,5 +1,5 @@
 export interface Bibliography {
-  id: number;
+  article_id: number;
   author?: string;
   year?: string;
   title?: string;

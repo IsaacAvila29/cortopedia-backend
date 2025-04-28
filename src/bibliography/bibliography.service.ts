@@ -14,15 +14,15 @@ export class BibliographyService {
     return (data as Bibliography[]) || [];
   }
 
-  async getBibliographyById(id: number): Promise<Bibliography | null> {
+  async getBibliographyById(article_id: number): Promise<Bibliography | null> {
     const { data, error } = await supabase
       .from('bibliography')
       .select('*')
-      .eq('id', id)
+      .eq('article_id', article_id)
       .single<Bibliography>();
     if (error) {
       console.error(
-        `Error fetching bibliography with ID ${id}:`,
+        `Error fetching bibliography with ID ${article_id}:`,
         error.message,
       );
       throw new Error('Failed to fetch bibliography');
@@ -36,6 +36,7 @@ export class BibliographyService {
     const { data, error } = await supabase
       .from('bibliography')
       .insert({
+        article_id: bibliography.article_id,
         author: bibliography.author,
         year: bibliography.year,
         title: bibliography.title,
@@ -63,6 +64,7 @@ export class BibliographyService {
     const { data, error } = await supabase
       .from('bibliography')
       .update({
+        article_id: bibliography.article_id,
         author: bibliography.author,
         year: bibliography.year,
         title: bibliography.title,
